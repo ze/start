@@ -1,0 +1,33 @@
+@import url('https://fonts.googleapis.com/css?family=Roboto');
+
+body {
+    background-color: #404552;
+}
+
+#container {
+    display: flex;
+    justify-content: space-between;
+
+    width: 85vw;
+    margin: 2vw auto;
+
+    font-family: "Roboto";
+}
+
+.column {
+    width: 20%;
+    background: #465783;
+    color: #E570A5;
+}
+
+.header {
+    height: 2em;
+
+    background: #797E8B;
+    color: #CBD6F4;
+
+    font-size: 2vw;
+    text-align: center;
+    line-height: 2em;
+    vertical-align: middle;
+}
