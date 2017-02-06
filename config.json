@@ -1,0 +1,18 @@
+{
+    "Programming": [
+        {"url": "https://stackoverflow.com", "name": "stackoverflow"},
+        {"url": "https://github.com", "name": "github"}
+    ],
+    "School": [
+        {"url": "https://mail.google.com", "name": "gmail"},
+        {"url": "http://bths.edu", "name": "bths"}
+    ],
+    "Social": [
+        {"url": "https://4chan.org", "name": "4chan"},
+        {"url": "https://reddit.com", "name": "reddit"}
+    ],
+    "Games": [
+        {"url": "https://diep.io", "name": "diep.io"},
+        {"url": "https://store.steampowered.com", "name": "steam"}
+    ]
+}
