@@ -1,6 +1,13 @@
 "use strict";
 
 const container = document.querySelector("#container");
+const search = document.querySelector("input");
+
+search.onkeypress= (e) => {
+    if (e.keyCode == 13) {
+        window.open("https://www.google.com/search?q=" + search.value, "_self");
+    }
+}
 
 class Column {
     constructor() {
@@ -14,6 +21,8 @@ class Column {
 
         this._column.appendChild(this._header);
         this._column.appendChild(this._content);
+
+        this._icons = false;
     }
 
     get column() {
@@ -27,51 +36,53 @@ class Column {
     set content(section) {
         for (let i = 0; i < section.length; i++) {
             let row = document.createElement("tr");
+            row.onclick = () => window.open(section[i].url, "_self");
 
-            let icon = document.createElement("img");
-            icon.src = section[i].url + "/favicon.ico";
-
-            let link = document.createElement("a");
-            link.href = section[i].url;
-            link.innerHTML = section[i].name;
-
-            let iconCell = document.createElement("td");
-            iconCell.setAttribute("class", "icon");
-            iconCell.appendChild(icon);
             let linkCell = document.createElement("td");
-            linkCell.appendChild(link);
+            linkCell.innerHTML = section[i].name;
 
-            row.appendChild(iconCell);
+            if (this._icons) {
+                let icon = document.createElement("img");
+                icon.src = section[i].url + "/favicon.ico";
+
+                let iconCell = document.createElement("td");
+                iconCell.setAttribute("class", "icon");
+                iconCell.appendChild(icon);
+
+                row.appendChild(iconCell);
+            } else {
+                linkCell.style.textAlign = "center";
+            }
+
             row.appendChild(linkCell);
 
             this._content.appendChild(row);
         }
     }
+
+    set icons(state) {
+        this._icons = state;
+    }
 }
 
 var xhr = new XMLHttpRequest();
-xhr.open("GET", "config.json", true);
-xhr.send();
-xhr.addEventListener("load", function () {
-    var config = JSON.parse(this.responseText);
 
-    var headers = (() => {
-        let names = [];
+function loadConfig(request, addIcons) {
+    request.open("GET", "config.json", true);
+    request.send();
+    request.addEventListener("load", function () {
+        var config = JSON.parse(this.responseText);
+        var headers = Object.keys(config);
 
-        for (let key in config) {
-            names.push(key);
+        for (let i = 0; i < headers.length; i++) {
+                let item = new Column();
+                item.header = headers[i];
+                item.icons = addIcons;
+                item.content = config[headers[i]];
+
+                container.appendChild(item.column);
         }
+    });
+}
 
-        return names;
-    })(config);
-
-    (function (cols) {
-        for (let i = 0; i < cols; i++) {
-            let item = new Column();
-            item.header = headers[i];
-            item.content = config[headers[i]];
-
-            container.appendChild(item.column);
-        }
-    })(headers.length);
-});
+loadConfig(xhr, false);
