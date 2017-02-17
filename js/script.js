@@ -2,12 +2,17 @@
 
 const container = document.querySelector("#container");
 const search = document.querySelector("input");
+const button = document.querySelector("button");
 
-search.onkeypress= (e) => {
+search.onkeypress = (e) => {
     if (e.keyCode == 13) {
-        window.open("https://www.google.com/search?q=" + search.value, "_self");
+        var url = "http://", query = search.value.trim();
+
+        if (!query.includes(".") && query.indexOf("localhost") < 0) url += "google.com/search?q=";
+
+        window.open(url + query, "_self");
     }
-}
+};
 
 class Column {
     constructor() {
