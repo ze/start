@@ -9,7 +9,8 @@
     ],
     "Social": [
         {"url": "https://4chan.org", "name": "4chan"},
-        {"url": "https://reddit.com", "name": "reddit"}
+        {"url": "https://reddit.com", "name": "reddit"},
+        {"url": "https://facebook.com", "name": "facebook"}
     ],
     "Games": [
         {"url": "https://diep.io", "name": "diep.io"},

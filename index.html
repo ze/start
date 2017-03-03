@@ -3,14 +3,26 @@
     <head>
         <title>Start</title>
         <link rel="stylesheet" href="css/style.css" type="text/css">
-        <script src="js/script.js" async></script>
     </head>
     <body>
-        <div id="search">
+        <div id="search" class="underline">
             <i class="material-icons">search</i>
-            <input value="search" onfocus="this.value='';" autofocus>
+            <input id="searchbar" placeholder="search" autofocus>
         </div>
-        <div id="container">
-        <button><i class="material-icons">add</i></button>
+        <div id="container"></div>
+        <button id="add-new"><i class="material-icons">add</i></button>
+        <div id="new-item" class="hoverable">
+            <form>
+                <select class="customize underline">
+                    <option>https://</option>
+                    <option>http://</option>
+                </select>
+                <input id="url" class="customize underline" placeholder="url" autocomplete="off">
+                <input id="name" class="customize underline" placeholder="name" autocomplete="off">
+                <button id="submit">submit<i class="material-icons right">send</i></button>
+            </form>
+        </div>
     </body>
+    <script src="js/config.js"></script>
+    <script src="js/script.js"></script>
 </html>
