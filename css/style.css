@@ -51,7 +51,7 @@ input:focus {
 
 button, select {
     font-family: "Roboto";
-    font-size: .9vw;
+    font-size: 0.9vw;
 }
 
 button {
@@ -61,8 +61,8 @@ button {
     vertical-align: middle;
     text-transform: uppercase;
 
-    padding: .4rem;
-    border-radius: 3px;
+    padding: 0.4rem;
+    border-radius: 0.15vw;
 }
 
 table {
@@ -92,15 +92,114 @@ tr {
 }
 
 tr:hover {
-    background-color: rgba(0, 0, 0, .1);
+    background-color: rgba(0, 0, 0, 0.1);
 }
 
 img {
-    width: 32px;
-    height: 32px;
+    width: 2em;
+    height: 2em;
     margin-left: 1vw;
 
     image-rendering: pixelated;
+}
+
+@media (max-width: 900px) {
+    thead {
+        font-size: 2.5vw;
+    }
+
+    tr {
+        font-size: 2vw;
+    }
+
+    select {
+        font-size: 1.25vw;
+    }
+
+    input {
+        font-size: 1.4vw;
+    }
+
+    #container {
+        flex-direction: column;
+    }
+
+    .column {
+        margin: 1vh 0 !important;
+    }
+
+    .column.editable {
+        box-shadow: none !important;
+        border: 1px solid #629AEA;
+    }
+
+    #searchbar {
+        font-size: 4.5vw !important;
+    }
+
+    #search-icon {
+        font-size: 4.5vw !important;
+    }
+
+    #add-new i {
+        padding: .6vw !important;
+        font-size: 1.6vw !important;
+    }
+
+    #new-item {
+        width: 60vw !important;
+    }
+
+    #submit {
+        height: 3vw !important;
+        width: 11.5vw !important;
+
+        line-height: 1.5vw !important;
+        font-size: 1.2vw !important;
+    }
+
+    #submit i {
+        font-size: 1.4vw !important;
+    }
+}
+
+@media (max-width: 600px) {
+    thead {
+        font-size: 4.5vw;
+    }
+
+    tr {
+        font-size: 3vw;
+    }
+
+    select {
+        font-size: 1vw;
+    }
+
+    input {
+        font-size: 1.4vw;
+    }
+
+    #add-new i {
+        padding: .25vw !important;
+        font-size: 1.7vw !important;
+    }
+
+    #new-item {
+        width: 65vw !important;
+    }
+
+    #submit {
+        height: 3.2vw !important;
+        width: 12vw !important;
+
+        line-height: 1.6vw !important;
+        font-size: 1.05vw !important;
+    }
+
+    #submit i {
+        font-size: 1.2vw !important;
+    }
 }
 
 #container {
@@ -112,24 +211,36 @@ img {
 }
 
 .underline {
-    border-bottom: 1px solid #F0F0F0;
+    border-bottom: .1vw solid #F0F0F0;
+}
+
+#search {
+    position: relative;
+    display: flex;
+
+    width: 80vw;
+    padding: 0.5vh 0;
+    margin: 0.4vw auto;
+}
+
+#search-icon {
+    position: absolute;
+    left: 0;
+    bottom: .5vh;
+
+    font-size: 1.5vw;
 }
 
 #searchbar {
     width: inherit;
-}
-
-#search {
-    display: flex;
-    position: relative;
-
-    width: 80vw;
-    padding: .5em;
-    margin: .4vw auto;
+    font-size: 1vw;
 }
 
 .column {
-    width: 20%;
+    flex-grow: 1;
+    flex-basis: 20%;
+
+    margin: 0 0.5vw;
 
     background: rgb(39, 40, 61);
     color: rgb(209, 120, 244);
@@ -145,7 +256,7 @@ img {
 }
 
 .column.editable {
-    box-shadow: 0 19px 38px rgba(0, 0, 0, 0.30), 0 15px 12px rgba(0, 0, 0, 0.22);
+    box-shadow: 0 19px 38px rgba(0, 0, 0, 0.3), 0 15px 12px rgba(0, 0, 0, 0.22);
 }
 
 .editable table {
@@ -158,11 +269,8 @@ img {
 
 #add-new {
     position: fixed;
-    bottom: 3.5em;
-    right: 2.5em;
-
-    width: 56px;
-    height: 56px;
+    bottom: 4vh;
+    right: 2vw;
 
     border: none;
     border-radius: 50%;
@@ -183,6 +291,12 @@ img {
     box-shadow: none;
 }
 
+#add-new i {
+    padding: .9vw;
+
+    font-size: 1.4vw;
+}
+
 #new-item {
     display: none;
     align-items: center;
@@ -195,22 +309,24 @@ img {
 
     width: 45vw;
     height: 12.5vh;
+    min-height: 30px;
+    max-height: 15%;
     margin: 0 auto;
 
-    border-radius: 2px;
+    border-radius: 0.1vw;
     background-color: rgb(39, 40, 61);
 }
 
 .customize {
-    padding: .5em;
+    padding: 0.5em 0;
 }
 
 #submit {
     height: 2.4vw;
     width: 10vw;
 
-    font-size: .9vw;
-    line-height: 2.4vw;
+    font-size: 0.9vw;
+    line-height: 1.2vw;
     vertical-align: middle;
 
     padding: 0 2vw;
@@ -225,7 +341,8 @@ img {
 }
 
 #submit i {
-    vertical-align: text-bottom;
-    margin-left: .5vw;
+    margin-left: 0.5vw;
+
     font-size: 1.2vw;
+    vertical-align: text-bottom;
 }
