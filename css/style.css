@@ -292,7 +292,7 @@ img {
 }
 
 #add-new i {
-    padding: .9vw;
+    padding: .5vw;
 
     font-size: 1.4vw;
 }
@@ -317,6 +317,10 @@ img {
     background-color: rgb(39, 40, 61);
 }
 
+.new-column {
+    width: 30vw !important;
+}
+
 .customize {
     padding: 0.5em 0;
 }
@@ -332,7 +336,7 @@ img {
     padding: 0 2vw;
 
     box-shadow: 0 2px 2px rgba(0, 0, 0, 0.15);
-    transition: 300ms all;
+    transition: all 200ms;
 }
 
 #submit:hover {

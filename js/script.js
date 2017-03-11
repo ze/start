@@ -3,34 +3,30 @@ const container = document.querySelector("#container"),
       search = document.querySelector("#searchbar"),
       button = document.querySelector("button");
 
-const config = new Config();
+const config = new Config(container);
 
-button.onclick = function () {
+function getCols() {
+    return document.querySelectorAll(".column");
+}
+
+button.onclick = function (e) {
     button.disabled = true;
 
-    var cols = document.querySelectorAll(".column");
+    let cols = getCols();
+
     Array.from(cols).map(function (col) {
-        col.className += " editable";
+        col.classList.add("editable");
         col.onclick = function (e) {
-            let selectedColumn = null;
-            for (let i = 0; i < cols.length; i++) {
-                cols[i].onclick = () => false;
-
-                if (this == cols[i]) {
-                    selectedColumn = config.columns[i];
-                    continue;
-                } else {
-                    cols[i].className = "column hoverable";
-                }
-            }
-
-            e.stopPropagation();
-            newItem(this, selectedColumn);
+            e.stopPropagation()
+            columnClick(e, col, cols);
         };
     });
+
+    e.stopPropagation();
+    document.addEventListener("click", newColumn);
 };
 
-search.onkeypress = (e) => {
+search.onkeypress = e => {
     if (e.keyCode == 13) {
         var url = "http://", query = search.value.trim();
 
@@ -54,8 +50,6 @@ class Column {
         this._header = this._content.createTHead();
 
         this._column.appendChild(this._content);
-
-        this._icons = false;
     }
 
     get column() {
@@ -79,6 +73,10 @@ class Column {
     }
 
     set content(section) {
+        if (!this._content.childNodes[1]) {
+            this._content.createTBody();
+        }
+
         for (let i = 0; i < section.length; i++) {
             let row = this._content.insertRow(-1);
             row.onclick = () => window.open(section[i].url, "_self");
@@ -116,13 +114,36 @@ class Column {
     }
 }
 
+function columnClick(e, col, cols) {
+    let selectedColumn = null;
+    for (let i = 0; i < cols.length; i++) {
+        cols[i].onclick = () => false;
+
+        if (col == cols[i]) {
+            selectedColumn = config.columns[i];
+            continue;
+        } else {
+            cols[i].classList.remove("editable");
+        }
+    }
+
+    e.stopPropagation();
+    newItem(col, selectedColumn);
+}
+
+const item = document.querySelector("#new-item"),
+    protocol = document.querySelector("select"),
+    url = document.querySelector("#url"),
+    name = document.querySelector("#name");
+
 function newItem(column, columnObj) {
-    var item = document.querySelector("#new-item"),
-        protocol = document.querySelector("select"),
-        url = document.querySelector("#url"),
-        name = document.querySelector("#name");
+    document.removeEventListener("click", newColumn);
+    item.classList.remove("new-column");
 
     item.style.display = "flex";
+    protocol.style.display = "initial";
+    url.style.display = "initial";
+    url.required = true;
 
     document.querySelector("form").onsubmit = function (e) {
         e.preventDefault();
@@ -140,19 +161,66 @@ function newItem(column, columnObj) {
 
     var once = function (e) {
         if (!e.target.closest("#new-item")) {
+            item.style.display = "none";
+
             document.removeEventListener(e.type, once);
 
-            item.style.display = "none";
             protocol.selectedIndex = 0;
             url.value = name.value = "";
 
             button.disabled = false;
 
-            column.className = "column hoverable";
+            column.classList.remove("editable");
         }
     };
 
     document.addEventListener("click", once);
 }
 
-config.load(container);
+function newColumn() {
+    document.removeEventListener("click", newColumn);
+
+    protocol.style.display = "none";
+    url.style.display = "none";
+    url.required = false;
+
+    item.style.display = "flex";
+    item.classList.add("new-column");
+
+    document.querySelector("form").onsubmit = function (e) {
+        e.preventDefault();
+        item.classList.remove("new-column");
+
+        config.addColumn(name.value.trim());
+
+        let col = config.columns[config.columns.length - 1];
+        col.column.onclick = function (e) {
+            e.stopPropagation();
+
+            name.value = "";
+            columnClick(e, col.column, getCols());
+        };
+
+        col.column.classList.add("editable");
+    }
+
+    var once = function (e) {
+        if (e.target == document.firstElementChild) {
+            item.style.display = "none";
+
+            document.removeEventListener(e.type, once);
+            Array.from(document.querySelectorAll(".column")).map(function (col) {
+                col.classList.remove("editable");
+                col.onclick = () => false;
+            });
+
+            name.value = "";
+
+            button.disabled = false;
+        }
+    };
+
+    document.addEventListener("click", once);
+}
+
+config.load();

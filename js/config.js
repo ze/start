@@ -1,9 +1,11 @@
 "use strict";
 class Config {
-    constructor() {
+    constructor(container) {
         this._xhr = new XMLHttpRequest();
         this._xhr.open("GET", "config.json", true);
         this._xhr.send();
+
+        this._container = container;
 
         this._config = null;
         this._columns = [];
@@ -17,7 +19,7 @@ class Config {
         return this._columns;
     }
 
-    load(container, icons = false) {
+    load(icons = false) {
         Column.icons = icons;
 
         this._xhr.addEventListener("load", () => {
@@ -31,12 +33,23 @@ class Config {
                 col.content = this.config[headers[i]];
 
                 this.columns.push(col);
-                container.appendChild(col.column);
+                this._container.appendChild(col.column);
             }
         });
     }
 
     add(column, url, name) {
-        this._config[column].push({url, name});
+        this.config[column].push({url, name});
+    }
+
+    addColumn(name) {
+        this.config[name] = [];
+
+        let col = new Column(this.config[name]);
+        col.header = name;
+        col.content = this.config[name];
+
+        this.columns.push(col);
+        this._container.appendChild(col.column);
     }
 }
