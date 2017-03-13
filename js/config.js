@@ -1,9 +1,11 @@
 "use strict";
 class Config {
     constructor(container) {
-        this._xhr = new XMLHttpRequest();
-        this._xhr.open("GET", "config.json", true);
-        this._xhr.send();
+        if (!localStorage.getItem("config")) {
+            this._xhr = new XMLHttpRequest();
+            this._xhr.open("GET", "config.json", true);
+            this._xhr.send();
+        };
 
         this._container = container;
 
@@ -19,23 +21,31 @@ class Config {
         return this._columns;
     }
 
+    generate() {
+        const headers = Object.keys(this.config);
+
+        for (let i = 0; i < headers.length; i++) {
+            const col = new Column(this.config[headers[i]]);
+            col.header = headers[i];
+            col.content = this.config[headers[i]];
+
+            this.columns.push(col);
+            this._container.appendChild(col.column);
+        }
+    }
+
     load(icons = false) {
         Column.icons = icons;
 
-        this._xhr.addEventListener("load", () => {
-            this._config = JSON.parse(this._xhr.responseText);
-
-            var headers = Object.keys(this.config);
-
-            for (let i = 0; i < headers.length; i++) {
-                let col = new Column(this.config[headers[i]]);
-                col.header = headers[i];
-                col.content = this.config[headers[i]];
-
-                this.columns.push(col);
-                this._container.appendChild(col.column);
-            }
-        });
+        if (localStorage.getItem("config")) {
+            this._config = JSON.parse(localStorage.getItem("config"));
+            this.generate();
+        } else {
+            this._xhr.addEventListener("load", () => {
+                this._config = JSON.parse(this._xhr.responseText);
+                this.generate();
+            });
+        }
     }
 
     add(column, url, name) {
@@ -45,11 +55,15 @@ class Config {
     addColumn(name) {
         this.config[name] = [];
 
-        let col = new Column(this.config[name]);
+        const col = new Column(this.config[name]);
         col.header = name;
         col.content = this.config[name];
 
         this.columns.push(col);
         this._container.appendChild(col.column);
+    }
+
+    localize() {
+        localStorage.setItem("config", JSON.stringify(this.config));
     }
 }

@@ -1,34 +1,41 @@
 "use strict";
 const container = document.querySelector("#container"),
-      search = document.querySelector("#searchbar"),
-      button = document.querySelector("button");
+    search = document.querySelector("#searchbar"),
+    button = document.querySelector("button");
 
 const config = new Config(container);
 
-function getCols() {
-    return document.querySelectorAll(".column");
-}
+const COL_MAX = 4,
+    ITEM_MAX = 10,
+    CHAR_MAX = [18, 25]
+
+const getCols = () => document.querySelectorAll(".column");
+const totalChildren = col => col.firstChild.childNodes[1].childNodes.length;
 
 button.onclick = function (e) {
     button.disabled = true;
 
-    let cols = getCols();
+    const cols = getCols();
 
     Array.from(cols).map(function (col) {
-        col.classList.add("editable");
-        col.onclick = function (e) {
-            e.stopPropagation()
-            columnClick(e, col, cols);
-        };
+        if (totalChildren(col) < ITEM_MAX) {
+            col.classList.add("editable");
+            col.onclick = function (e) {
+                e.stopPropagation()
+                columnClick(e, col, cols);
+            };
+        }
     });
 
-    e.stopPropagation();
-    document.addEventListener("click", newColumn);
+    if (cols.length < COL_MAX) {
+        e.stopPropagation();
+        document.addEventListener("click", newColumn);
+    }
 };
 
 search.onkeypress = e => {
     if (e.keyCode == 13) {
-        var url = "http://", query = search.value.trim();
+        let url = "http://", query = search.value.trim();
 
         if (query.includes(" ") || query.includes(",") ||
             !query.includes(".") && query.indexOf("localhost") < 0) {
@@ -73,31 +80,38 @@ class Column {
     }
 
     set content(section) {
+        if (Column.icons) {
+            const head = document.createElement("th");
+            head.setAttribute("colspan", "2");
+            head.innerHTML = this._header.innerHTML;
+
+            this.header = "";
+            this.header.appendChild(head);
+        }
+
         if (!this._content.childNodes[1]) {
             this._content.createTBody();
         }
 
         for (let i = 0; i < section.length; i++) {
-            let row = this._content.insertRow(-1);
+            const row = this._content.insertRow(-1);
             row.onclick = () => window.open(section[i].url, "_self");
 
-            let linkCell = row.insertCell(-1);
+            const linkCell = row.insertCell(-1);
             linkCell.innerHTML = section[i].name;
 
             if (Column.icons) {
-                let head = document.createElement("th");
-                head.setAttribute("colspan", "2");
-                head.innerHTML = this._header.innerHTML;
-
-                this.header = "";
-                this.header.appendChild(head);
-
-                let icon = document.createElement("img");
+                const icon = document.createElement("img");
                 icon.src = section[i].url + "/favicon.ico";
 
-                let iconCell = row.insertCell(0);
+                const iconCell = row.insertCell(0);
                 iconCell.setAttribute("class", "icon");
                 iconCell.appendChild(icon);
+
+                icon.onerror = function () {
+                    this.style.visibility = "hidden";
+                };
+
             } else {
                 linkCell.style.textAlign = "center";
             }
@@ -136,6 +150,70 @@ const item = document.querySelector("#new-item"),
     url = document.querySelector("#url"),
     name = document.querySelector("#name");
 
+name.maxLength = Column.icons ? CHAR_MAX[0] : CHAR_MAX[1];
+
+function clear() {
+    item.style.display = "none";
+    protocol.selectedIndex = 0;
+    url.value = name.value = "";
+
+    name.maxLength = Column.icons ? CHAR_MAX[0] : CHAR_MAX[1];
+
+    button.disabled = false;
+}
+
+function newColumn() {
+    document.removeEventListener("click", newColumn);
+
+    name.maxLength = CHAR_MAX[0];
+
+    protocol.style.display = "none";
+    url.style.display = "none";
+    url.required = false;
+
+    item.style.display = "flex";
+    item.classList.add("new-column");
+
+    document.querySelector("form").onsubmit = function (e) {
+        e.preventDefault();
+
+        config.addColumn(name.value.trim());
+
+        const col = config.columns[config.columns.length - 1];
+        col.column.onclick = function (e) {
+            e.stopPropagation();
+
+            clear();
+            columnClick(e, col.column, getCols());
+        };
+
+        col.column.classList.add("editable");
+        config.localize();
+
+        if (getCols().length == COL_MAX) {
+            clear();
+        }
+    }
+
+    const once = function (e) {
+        if (e.target == document.firstElementChild) {
+            item.style.display = "none";
+
+            document.removeEventListener(e.type, once);
+            Array.from(document.querySelectorAll(".column")).map(function (col) {
+                col.classList.remove("editable");
+                col.onclick = () => false;
+            });
+
+            name.value = "";
+
+            button.disabled = false;
+        }
+    };
+
+    document.addEventListener("click", once);
+}
+
 function newItem(column, columnObj) {
     document.removeEventListener("click", newColumn);
     item.classList.remove("new-column");
@@ -153,70 +231,23 @@ function newItem(column, columnObj) {
             headerVal = headerVal.firstChild;
         }
 
-        let trimVal = elem => elem.value.trim();
+        const trimVal = elem => elem.value.trim();
         config.add(headerVal.innerHTML, protocol.value + trimVal(url), trimVal(name));
 
         columnObj.reload();
-    };
+        config.localize();
 
-    var once = function (e) {
-        if (!e.target.closest("#new-item")) {
-            item.style.display = "none";
-
-            document.removeEventListener(e.type, once);
-
-            protocol.selectedIndex = 0;
-            url.value = name.value = "";
-
-            button.disabled = false;
-
+        if (totalChildren(column) == ITEM_MAX) {
+            clear();
             column.classList.remove("editable");
         }
     };
 
-    document.addEventListener("click", once);
-}
-
-function newColumn() {
-    document.removeEventListener("click", newColumn);
-
-    protocol.style.display = "none";
-    url.style.display = "none";
-    url.required = false;
-
-    item.style.display = "flex";
-    item.classList.add("new-column");
-
-    document.querySelector("form").onsubmit = function (e) {
-        e.preventDefault();
-        item.classList.remove("new-column");
-
-        config.addColumn(name.value.trim());
-
-        let col = config.columns[config.columns.length - 1];
-        col.column.onclick = function (e) {
-            e.stopPropagation();
-
-            name.value = "";
-            columnClick(e, col.column, getCols());
-        };
-
-        col.column.classList.add("editable");
-    }
-
-    var once = function (e) {
-        if (e.target == document.firstElementChild) {
-            item.style.display = "none";
+    const once = function (e) {
+        if (!e.target.closest("#new-item")) {
+            clear();
 
             document.removeEventListener(e.type, once);
-            Array.from(document.querySelectorAll(".column")).map(function (col) {
-                col.classList.remove("editable");
-                col.onclick = () => false;
-            });
-
-            name.value = "";
-
-            button.disabled = false;
         }
     };
 
