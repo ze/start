@@ -5,12 +5,17 @@ const container = document.querySelector("#container"),
 
 const config = new Config(container);
 
+const getCols = () => document.querySelectorAll(".column"),
+    totalChildren = col => col.firstChild.childNodes[1].childNodes.length;
+
+const item = document.querySelector("#new-item"),
+    protocol = document.querySelector("select"),
+    url = document.querySelector("#url"),
+    name = document.querySelector("#name");
+
 const COL_MAX = 4,
     ITEM_MAX = 10,
     CHAR_MAX = [18, 25]
-
-const getCols = () => document.querySelectorAll(".column");
-const totalChildren = col => col.firstChild.childNodes[1].childNodes.length;
 
 button.onclick = function (e) {
     button.disabled = true;
@@ -20,9 +25,16 @@ button.onclick = function (e) {
     Array.from(cols).map(function (col) {
         if (totalChildren(col) < ITEM_MAX) {
             col.classList.add("editable");
+
+            let head = col.firstChild.firstChild;
+            head.onclick = function (e) {
+                e.stopPropagation();
+                columnClick(e, col, cols, changeColumn);
+            };
+
             col.onclick = function (e) {
                 e.stopPropagation()
-                columnClick(e, col, cols);
+                columnClick(e, col, cols, newItem);
             };
         }
     });
@@ -35,7 +47,8 @@ button.onclick = function (e) {
 
 search.onkeypress = e => {
     if (e.keyCode == 13) {
-        let url = "http://", query = search.value.trim();
+        let url = "http://",
+            query = search.value.trim();
 
         if (query.includes(" ") || query.includes(",") ||
             !query.includes(".") && query.indexOf("localhost") < 0) {
@@ -128,10 +141,15 @@ class Column {
     }
 }
 
-function columnClick(e, col, cols) {
+name.maxLength = Column.icons ? CHAR_MAX[0] : CHAR_MAX[1];
+
+function columnClick(e, col, cols, callback) {
+    name.maxLength = CHAR_MAX[0];
+
     let selectedColumn = null;
     for (let i = 0; i < cols.length; i++) {
         cols[i].onclick = () => false;
+        cols[i].firstChild.firstChild.onclick = () => false;
 
         if (col == cols[i]) {
             selectedColumn = config.columns[i];
@@ -142,18 +160,13 @@ function columnClick(e, col, cols) {
     }
 
     e.stopPropagation();
-    newItem(col, selectedColumn);
+    callback(col, selectedColumn);
 }
-
-const item = document.querySelector("#new-item"),
-    protocol = document.querySelector("select"),
-    url = document.querySelector("#url"),
-    name = document.querySelector("#name");
-
-name.maxLength = Column.icons ? CHAR_MAX[0] : CHAR_MAX[1];
 
 function clear() {
     item.style.display = "none";
+    document.querySelector("#delete").style.display = "none";
+
     protocol.selectedIndex = 0;
     url.value = name.value = "";
 
@@ -162,17 +175,38 @@ function clear() {
     button.disabled = false;
 }
 
+function clearColumnClick() {
+    const once = function (e) {
+        e.stopPropagation();
+
+        if (e.target == document.documentElement) {
+            item.style.display = "none";
+            document.querySelector("#delete").style.display = "none";
+
+            document.removeEventListener(e.type, once);
+            Array.from(getCols()).map(function (col) {
+                col.classList.remove("editable");
+                col.onclick = () => false;
+                col.firstChild.firstChild.onclick = () => false;
+            });
+
+            name.value = "";
+
+            button.disabled = false;
+        }
+    };
+
+    document.addEventListener("click", once);
+}
+
 function newColumn() {
     document.removeEventListener("click", newColumn);
-
-    name.maxLength = CHAR_MAX[0];
 
     protocol.style.display = "none";
     url.style.display = "none";
     url.required = false;
 
     item.style.display = "flex";
-    item.classList.add("new-column");
 
     document.querySelector("form").onsubmit = function (e) {
         e.preventDefault();
@@ -184,7 +218,7 @@ function newColumn() {
             e.stopPropagation();
 
             clear();
-            columnClick(e, col.column, getCols());
+            columnClick(e, col.column, getCols(), newItem);
         };
 
         col.column.classList.add("editable");
@@ -193,25 +227,57 @@ function newColumn() {
         if (getCols().length == COL_MAX) {
             clear();
         }
-    }
-
-    const once = function (e) {
-        if (e.target == document.firstElementChild) {
-            item.style.display = "none";
-
-            document.removeEventListener(e.type, once);
-            Array.from(document.querySelectorAll(".column")).map(function (col) {
-                col.classList.remove("editable");
-                col.onclick = () => false;
-            });
-
-            name.value = "";
-
-            button.disabled = false;
-        }
     };
 
-    document.addEventListener("click", once);
+    clearColumnClick();
+}
+
+function changeColumn(column, columnObj) {
+    document.removeEventListener("click", newColumn);
+
+    name.value = "";
+
+    protocol.style.display = "none";
+    url.style.display = "none";
+    url.required = false;
+
+    item.style.display = "flex";
+    document.querySelector("#delete").style.display = "initial";
+
+    document.querySelector("form").onsubmit = function (e) {
+        e.preventDefault();
+
+        let trimmed = name.value.trim();
+        let replace = {};
+
+        for (let key in config.config) {
+            if (key == columnObj.header.innerHTML) {
+                replace[trimmed] = config.config[key];
+            } else {
+                replace[key] = config.config[key];
+            }
+        }
+
+        config.config = replace;
+
+        config.localize();
+        columnObj.header = trimmed;
+    };
+
+    document.querySelector("#delete").onclick = function (e) {
+        for (let i = 0; i < config.columns.length; i++) {
+            if (config.columns[i].header.innerHTML == columnObj.header.innerHTML) {
+                config.columns.splice(i, 1);
+            }
+        }
+        delete config.config[columnObj.header.innerHTML];
+        column.parentNode.removeChild(column);
+
+        columnObj.reload();
+        config.localize();
+    }
+
+    clearColumnClick();
 }
 
 function newItem(column, columnObj) {
@@ -246,6 +312,7 @@ function newItem(column, columnObj) {
     const once = function (e) {
         if (!e.target.closest("#new-item")) {
             clear();
+            column.classList.remove("editable");
 
             document.removeEventListener(e.type, once);
         }

@@ -17,6 +17,10 @@ class Config {
         return this._config;
     }
 
+    set config(config) {
+        this._config = config;
+    }
+
     get columns() {
         return this._columns;
     }
@@ -34,7 +38,7 @@ class Config {
         }
     }
 
-    load(icons = false) {
+    load(icons=false) {
         Column.icons = icons;
 
         if (localStorage.getItem("config")) {
