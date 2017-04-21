@@ -275,6 +275,8 @@ function changeColumn(column, columnObj) {
 
         columnObj.reload();
         config.localize();
+
+        clear();
     }
 
     clearColumnClick();

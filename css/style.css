@@ -71,12 +71,10 @@ table {
 }
 
 thead {
-    height: 1.5em;
-
     background: rgb(175,37,241);
     color: #D8D7F0;
 
-    font-size: 2vw;
+    font-size: 2.5vh;
     text-align: center;
     line-height: 1.6em;
     vertical-align: middle;
@@ -128,6 +126,7 @@ img {
 
     .column {
         margin: 1vh 0 !important;
+        min-height: 7.5vw !important;
     }
 
     .column.editable {
@@ -179,7 +178,12 @@ img {
     }
 
     input {
+        margin: -1vw;
         font-size: 1.4vw;
+    }
+
+    .column {
+        min-height: 12.5vw !important;
     }
 
     #add-new i {
@@ -242,6 +246,7 @@ img {
     flex-grow: 1;
     flex-basis: 20%;
 
+    min-height: 9vh;
     margin: 0 0.5vw;
 
     background: rgb(39, 40, 61);
@@ -312,7 +317,7 @@ img {
     width: 45vw;
     height: 12.5vh;
     min-height: 30px;
-    max-height: 15%;
+    max-height: 15vh;
     margin: 0 auto;
 
     border-radius: 0.1vw;
@@ -324,7 +329,7 @@ img {
 }
 
 .customize {
-    padding: 0.5em 0;
+    padding: 0.5vw 0;
 }
 
 #delete {
