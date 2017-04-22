@@ -38,22 +38,28 @@ class Config {
         }
     }
 
-    load(icons=false) {
+    load(icons, callback) {
         Column.icons = icons;
 
         if (localStorage.getItem("config")) {
             this._config = JSON.parse(localStorage.getItem("config"));
             this.generate();
+            callback();
         } else {
             this._xhr.addEventListener("load", () => {
                 this._config = JSON.parse(this._xhr.responseText);
                 this.generate();
+                callback();
             });
         }
     }
 
     add(column, url, name) {
         this.config[column].push({url, name});
+    }
+
+    change(column, rowIndex, url, name) {
+        this.config[column][rowIndex] = {url, name};
     }
 
     addColumn(name) {

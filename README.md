@@ -1,7 +1,7 @@
 <h1 align="center">start</h1>
 <img src="http://i.imgur.com/8wM8wlY.png">
 
-## features
+## Features
 
 * Utilizes responsive design for desktop or mobile usage.
 * A search bar to either load websites or submit a query to Google.
@@ -9,10 +9,12 @@
 * Local caching of the configuration.
 * No installation necessary.
 
-## usage
+## Usage
 
 * Set the page to open on browser open to `ze.github.io/start`.
-* To add a new item or column, press the new item button on the lower right.
-  * Clicking on the page allows for a new column with a maximum of four columns.
-  * Click on column body to add a new named url with a maximum of 10 items per column.
-* Click on a column header to change the name or delete the column.
+* To add a new item or column, press the new item button on the lower right and:
+  * Left Click on the page to add a new column with a maximum of four columns.
+  * Left Click on column body to add a new named url with a maximum of 10 items per column.
+* To change column information:
+  * Right click column header to change name or delete column.
+  * Right click row to change protocol/url/name or delete entry.

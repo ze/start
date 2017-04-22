@@ -147,10 +147,6 @@ img {
         font-size: 1.6vw !important;
     }
 
-    #new-item {
-        width: 60vw !important;
-    }
-
     .button {
         height: 3vw !important;
         width: 11.5vw !important;
@@ -189,10 +185,6 @@ img {
     #add-new i {
         padding: .25vw !important;
         font-size: 1.7vw !important;
-    }
-
-    #new-item {
-        width: 65vw !important;
     }
 
     .button {
@@ -314,10 +306,8 @@ img {
     left: 0;
     right: 0;
 
-    width: 45vw;
-    height: 12.5vh;
-    min-height: 30px;
-    max-height: 15vh;
+    width: fit-content;
+    padding: 2.5vh 1vw;
     margin: 0 auto;
 
     border-radius: 0.1vw;
@@ -335,7 +325,7 @@ img {
 #delete {
     display: none;
 
-    margin-left: -5em;
+    margin-left: 5vw;
 
     background-color: rgb(244, 120, 209);
 }

@@ -5,8 +5,8 @@ const container = document.querySelector("#container"),
 
 const config = new Config(container);
 
-const getCols = () => document.querySelectorAll(".column"),
-    totalChildren = col => col.firstChild.childNodes[1].childNodes.length;
+const getCols = () => Array.from(document.querySelectorAll(".column")),
+    columnChildren = col => col.firstChild.childNodes[1].childNodes;
 
 const item = document.querySelector("#new-item"),
     protocol = document.querySelector("select"),
@@ -21,19 +21,12 @@ button.onclick = function (e) {
     button.disabled = true;
 
     const cols = getCols();
+    cols.map(function (col) {
+        col.classList.add("editable");
 
-    Array.from(cols).map(function (col) {
-        if (totalChildren(col) < ITEM_MAX) {
-            col.classList.add("editable");
-
-            let head = col.firstChild.firstChild;
-            head.onclick = function (e) {
-                e.stopPropagation();
-                columnClick(e, col, cols, changeColumn);
-            };
-
+        if (columnChildren(col).length < ITEM_MAX) {
             col.onclick = function (e) {
-                e.stopPropagation()
+                e.stopPropagation();
                 columnClick(e, col, cols, newItem);
             };
         }
@@ -52,98 +45,16 @@ search.onkeypress = e => {
 
         if (query.includes(" ") || query.includes(",") ||
             !query.includes(".") && query.indexOf("localhost") < 0) {
-            url += "google.com/search?q=";
+                url += "google.com/search?q=";
         }
 
         window.open(url + query, "_self");
     }
 };
 
-class Column {
-    constructor(config) {
-        this._config = config;
-
-        this._column = document.createElement("div");
-        this._column.setAttribute("class", "column hoverable");
-
-        this._content = document.createElement("table");
-        this._header = this._content.createTHead();
-
-        this._column.appendChild(this._content);
-    }
-
-    get column() {
-        return this._column;
-    }
-
-    set header(text) {
-        this._header.innerHTML = text;
-    }
-
-    get header() {
-        return this._header;
-    }
-
-    static set icons(icons) {
-        this._icons = icons;
-    }
-
-    static get icons() {
-        return this._icons;
-    }
-
-    set content(section) {
-        if (Column.icons) {
-            const head = document.createElement("th");
-            head.setAttribute("colspan", "2");
-            head.innerHTML = this._header.innerHTML;
-
-            this.header = "";
-            this.header.appendChild(head);
-        }
-
-        if (!this._content.childNodes[1]) {
-            this._content.createTBody();
-        }
-
-        for (let i = 0; i < section.length; i++) {
-            const row = this._content.insertRow(-1);
-            row.onclick = () => window.open(section[i].url, "_self");
-
-            const linkCell = row.insertCell(-1);
-            linkCell.innerHTML = section[i].name;
-
-            if (Column.icons) {
-                const icon = document.createElement("img");
-                icon.src = section[i].url + "/favicon.ico";
-
-                const iconCell = row.insertCell(0);
-                iconCell.setAttribute("class", "icon");
-                iconCell.appendChild(icon);
-
-                icon.onerror = function () {
-                    this.style.visibility = "hidden";
-                };
-
-            } else {
-                linkCell.style.textAlign = "center";
-            }
-        }
-    }
-
-    clear() {
-        this._content.childNodes[1].innerHTML = "";
-    }
-
-    reload() {
-        this.clear();
-        this.content = this._config;
-    }
-}
-
 name.maxLength = Column.icons ? CHAR_MAX[0] : CHAR_MAX[1];
 
-function columnClick(e, col, cols, callback) {
+function columnClick(e, col, cols, callback, row) {
     name.maxLength = CHAR_MAX[0];
 
     let selectedColumn = null;
@@ -159,8 +70,11 @@ function columnClick(e, col, cols, callback) {
         }
     }
 
-    e.stopPropagation();
-    callback(col, selectedColumn);
+    if (row) {
+        callback(selectedColumn, row);
+    } else {
+        callback(selectedColumn);
+    }
 }
 
 function clear() {
@@ -169,6 +83,8 @@ function clear() {
 
     protocol.selectedIndex = 0;
     url.value = name.value = "";
+
+    url.required = true;
 
     name.maxLength = Column.icons ? CHAR_MAX[0] : CHAR_MAX[1];
 
@@ -184,7 +100,7 @@ function clearColumnClick() {
             document.querySelector("#delete").style.display = "none";
 
             document.removeEventListener(e.type, once);
-            Array.from(getCols()).map(function (col) {
+            getCols().map(function (col) {
                 col.classList.remove("editable");
                 col.onclick = () => false;
                 col.firstChild.firstChild.onclick = () => false;
@@ -212,6 +128,7 @@ function newColumn() {
         e.preventDefault();
 
         config.addColumn(name.value.trim());
+        name.value = "";
 
         const col = config.columns[config.columns.length - 1];
         col.column.onclick = function (e) {
@@ -232,13 +149,12 @@ function newColumn() {
     clearColumnClick();
 }
 
-function changeColumn(column, columnObj) {
-    document.removeEventListener("click", newColumn);
-
+function changeColumn(col) {
     name.value = "";
 
     protocol.style.display = "none";
     url.style.display = "none";
+
     url.required = false;
 
     item.style.display = "flex";
@@ -247,11 +163,11 @@ function changeColumn(column, columnObj) {
     document.querySelector("form").onsubmit = function (e) {
         e.preventDefault();
 
-        let trimmed = name.value.trim();
-        let replace = {};
+        const trimmed = name.value.trim();
+        const replace = {};
 
-        for (let key in config.config) {
-            if (key == columnObj.header.innerHTML) {
+        for (const key in config.config) {
+            if (key == col.header.innerHTML) {
                 replace[trimmed] = config.config[key];
             } else {
                 replace[key] = config.config[key];
@@ -261,19 +177,20 @@ function changeColumn(column, columnObj) {
         config.config = replace;
 
         config.localize();
-        columnObj.header = trimmed;
+        col.header = trimmed;
     };
 
     document.querySelector("#delete").onclick = function (e) {
         for (let i = 0; i < config.columns.length; i++) {
-            if (config.columns[i].header.innerHTML == columnObj.header.innerHTML) {
+            if (config.columns[i].header.innerHTML == col.header.innerHTML) {
                 config.columns.splice(i, 1);
             }
         }
-        delete config.config[columnObj.header.innerHTML];
-        column.parentNode.removeChild(column);
 
-        columnObj.reload();
+        delete config.config[col.header.innerHTML];
+        col.column.parentNode.removeChild(col.column);
+
+        col.reload();
         config.localize();
 
         clear();
@@ -282,39 +199,38 @@ function changeColumn(column, columnObj) {
     clearColumnClick();
 }
 
-function newItem(column, columnObj) {
+function newItem(col) {
     document.removeEventListener("click", newColumn);
     item.classList.remove("new-column");
 
     item.style.display = "flex";
     protocol.style.display = "initial";
     url.style.display = "initial";
-    url.required = true;
 
     document.querySelector("form").onsubmit = function (e) {
         e.preventDefault();
 
-        let headerVal = columnObj.header;
+        let header = col.header;
         if (Column.icons) {
-            headerVal = headerVal.firstChild;
+            header = header.firstChild;
         }
 
         const trimVal = elem => elem.value.trim();
-        config.add(headerVal.innerHTML, protocol.value + trimVal(url), trimVal(name));
+        config.add(header.innerHTML, protocol.value + trimVal(url), trimVal(name));
 
-        columnObj.reload();
+        col.reload();
         config.localize();
 
-        if (totalChildren(column) == ITEM_MAX) {
+        if (columnChildren(col.column).length == ITEM_MAX) {
             clear();
-            column.classList.remove("editable");
+            col.column.classList.remove("editable");
         }
     };
 
     const once = function (e) {
         if (!e.target.closest("#new-item")) {
             clear();
-            column.classList.remove("editable");
+            col.column.classList.remove("editable");
 
             document.removeEventListener(e.type, once);
         }
@@ -323,4 +239,60 @@ function newItem(column, columnObj) {
     document.addEventListener("click", once);
 }
 
-config.load();
+function changeItem(col, row) {
+    item.style.display = "flex";
+    protocol.style.display = "initial";
+    url.style.display = "initial";
+    document.querySelector("#delete").style.display = "initial";
+
+    name.value = "";
+
+    const rowIndex = Array.prototype.indexOf.call(row.parentNode.children, row);
+    const header = col.header.innerHTML;
+
+    document.querySelector("form").onsubmit = function (e) {
+        e.preventDefault();
+
+        const trimVal = elem => elem.value.trim();
+        const trimmedUrl = protocol.value + trimVal(url);
+
+        config.change(header, rowIndex, trimmedUrl, trimVal(name));
+        row.firstChild.innerHTML = trimVal(name);
+        row.onclick = () => window.open(trimmedUrl, "_self");
+
+        config.localize();
+    };
+
+    document.querySelector("#delete").onclick = function (e) {
+        col.config.splice(rowIndex, 1);
+
+        col.reload();
+        config.localize();
+
+        clear();
+    }
+
+    clearColumnClick();
+}
+
+
+config.load(false, () => {
+    for (const col of getCols()) {
+        let head = col.firstChild.firstChild;
+        head.oncontextmenu = function (e) {
+            e.preventDefault();
+            e.stopPropagation();
+
+            columnClick(e, col, getCols(), changeColumn);
+        };
+
+        for (const row of columnChildren(col)) {
+            row.oncontextmenu = function (e) {
+                e.preventDefault();
+                e.stopPropagation();
+
+                columnClick(e, col, getCols(), changeItem, row);
+            };
+        }
+    }
+});
