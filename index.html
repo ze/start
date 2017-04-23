@@ -4,6 +4,8 @@
         <title>Start</title>
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <link rel="stylesheet" href="css/style.css" type="text/css">
+        <link href="https://fonts.googleapis.com/css?family=Roboto|Ubuntu+Mono" rel="stylesheet">
+        <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     </head>
     <body>
         <div id="search" class="underline">
@@ -12,7 +14,7 @@
         </div>
         <div id="container"></div>
         <button id="add-new"><i class="material-icons">add</i></button>
-        <div id="new-item" class="hoverable">
+        <div id="new-item" class="menu hoverable">
             <form>
                 <select class="customize underline">
                     <option>https://</option>
@@ -23,6 +25,12 @@
                 <button class="button">submit<i class="material-icons right">send</i></button>
             </form>
             <button id="delete" class="button">delete<i class="material-icons right">delete</i></button>
+        </div>
+        <div id="config" class=" menu hoverable">
+            <div class="switchable">
+                <input type="checkbox" class="switch-checkbox" id="switch">
+                <label class="switch-label" for="switch"></label>
+            </div>
         </div>
     </body>
     <script src="js/column.js"></script>

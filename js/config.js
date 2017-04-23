@@ -28,10 +28,10 @@ class Config {
     generate() {
         const headers = Object.keys(this.config);
 
-        for (let i = 0; i < headers.length; i++) {
-            const col = new Column(this.config[headers[i]]);
-            col.header = headers[i];
-            col.content = this.config[headers[i]];
+        for (const head of headers) {
+            const col = new Column(this.config[head]);
+            col.content = this.config[head];
+            col.header = head;
 
             this.columns.push(col);
             this._container.appendChild(col.column);
@@ -75,5 +75,9 @@ class Config {
 
     localize() {
         localStorage.setItem("config", JSON.stringify(this.config));
+    }
+
+    clearContainer() {
+        this._container.innerHTML = "";
     }
 }

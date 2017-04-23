@@ -9,15 +9,19 @@ const getCols = () => Array.from(document.querySelectorAll(".column")),
     columnChildren = col => col.firstChild.childNodes[1].childNodes;
 
 const item = document.querySelector("#new-item"),
+    settings = document.querySelector("#config"),
     protocol = document.querySelector("select"),
     url = document.querySelector("#url"),
     name = document.querySelector("#name");
 
 const COL_MAX = 4,
     ITEM_MAX = 10,
-    CHAR_MAX = [18, 25]
+    CHAR_MAX = [18, 25];
+
+name.maxLength = CHAR_MAX[1];
 
 button.onclick = function (e) {
+    settings.style.display = "none";
     button.disabled = true;
 
     const cols = getCols();
@@ -52,8 +56,6 @@ search.onkeypress = e => {
     }
 };
 
-name.maxLength = Column.icons ? CHAR_MAX[0] : CHAR_MAX[1];
-
 function columnClick(e, col, cols, callback, row) {
     name.maxLength = CHAR_MAX[0];
 
@@ -78,7 +80,7 @@ function columnClick(e, col, cols, callback, row) {
 }
 
 function clear() {
-    item.style.display = "none";
+    Array.from(document.querySelectorAll(".menu")).map(menu => menu.style.display = "none");
     document.querySelector("#delete").style.display = "none";
 
     protocol.selectedIndex = 0;
@@ -96,19 +98,14 @@ function clearColumnClick() {
         e.stopPropagation();
 
         if (e.target == document.documentElement) {
-            item.style.display = "none";
-            document.querySelector("#delete").style.display = "none";
-
             document.removeEventListener(e.type, once);
+            clear();
+
             getCols().map(function (col) {
                 col.classList.remove("editable");
                 col.onclick = () => false;
                 col.firstChild.firstChild.onclick = () => false;
             });
-
-            name.value = "";
-
-            button.disabled = false;
         }
     };
 
@@ -136,6 +133,14 @@ function newColumn() {
 
             clear();
             columnClick(e, col.column, getCols(), newItem);
+        };
+
+        col.header.oncontextmenu = function (e) {
+            e.preventDefault();
+            e.stopPropagation();
+
+            if (window.getComputedStyle(settings, null).getPropertyValue("display") != "none") return;
+            columnClick(e, col, getCols(), changeColumn);
         };
 
         col.column.classList.add("editable");
@@ -167,7 +172,7 @@ function changeColumn(col) {
         const replace = {};
 
         for (const key in config.config) {
-            if (key == col.header.innerHTML) {
+            if (key == col.header.innerText) {
                 replace[trimmed] = config.config[key];
             } else {
                 replace[key] = config.config[key];
@@ -182,12 +187,12 @@ function changeColumn(col) {
 
     document.querySelector("#delete").onclick = function (e) {
         for (let i = 0; i < config.columns.length; i++) {
-            if (config.columns[i].header.innerHTML == col.header.innerHTML) {
+            if (config.columns[i].header.innerText == col.header.innerText) {
                 config.columns.splice(i, 1);
             }
         }
 
-        delete config.config[col.header.innerHTML];
+        delete config.config[col.header.innerText];
         col.column.parentNode.removeChild(col.column);
 
         col.reload();
@@ -210,33 +215,18 @@ function newItem(col) {
     document.querySelector("form").onsubmit = function (e) {
         e.preventDefault();
 
-        let header = col.header;
-        if (Column.icons) {
-            header = header.firstChild;
-        }
-
         const trimVal = elem => elem.value.trim();
-        config.add(header.innerHTML, protocol.value + trimVal(url), trimVal(name));
+        config.add(col.header.innerHTML, protocol.value + trimVal(url), trimVal(name));
 
         col.reload();
         config.localize();
 
         if (columnChildren(col.column).length == ITEM_MAX) {
             clear();
-            col.column.classList.remove("editable");
         }
     };
 
-    const once = function (e) {
-        if (!e.target.closest("#new-item")) {
-            clear();
-            col.column.classList.remove("editable");
-
-            document.removeEventListener(e.type, once);
-        }
-    };
-
-    document.addEventListener("click", once);
+    clearColumnClick();
 }
 
 function changeItem(col, row) {
@@ -257,7 +247,7 @@ function changeItem(col, row) {
         const trimmedUrl = protocol.value + trimVal(url);
 
         config.change(header, rowIndex, trimmedUrl, trimVal(name));
-        row.firstChild.innerHTML = trimVal(name);
+        row.childNodes[Column.icons ? 1 : 0].innerHTML = trimVal(name);
         row.onclick = () => window.open(trimmedUrl, "_self");
 
         config.localize();
@@ -275,14 +265,26 @@ function changeItem(col, row) {
     clearColumnClick();
 }
 
+function switchIcons() {
+    const iconSetter = document.querySelector("#switch");
+    iconSetter.onclick = e => {
+        Column.icons = iconSetter.checked;
+        localStorage.setItem("icons", Column.icons);
 
-config.load(false, () => {
+        config.clearContainer();
+        config.generate();
+        setupColumns();
+    };
+}
+
+function setupColumns() {
     for (const col of getCols()) {
         let head = col.firstChild.firstChild;
         head.oncontextmenu = function (e) {
             e.preventDefault();
             e.stopPropagation();
 
+            if (window.getComputedStyle(settings, null).getPropertyValue("display") != "none") return;
             columnClick(e, col, getCols(), changeColumn);
         };
 
@@ -291,8 +293,26 @@ config.load(false, () => {
                 e.preventDefault();
                 e.stopPropagation();
 
+                if (window.getComputedStyle(settings, null).getPropertyValue("display") != "none") return;
                 columnClick(e, col, getCols(), changeItem, row);
             };
         }
     }
+}
+
+config.load(JSON.parse(localStorage.getItem("icons")) || false, function () {
+    document.querySelector("#switch").checked = Column.icons;
+
+    document.oncontextmenu = e => {
+        e.preventDefault();
+
+        if (window.getComputedStyle(item, null).getPropertyValue("display") != "none") return;
+        document.querySelector("#config").style.display = "flex";
+
+        switchIcons();
+
+        clearColumnClick();
+    };
+
+    setupColumns();
 });

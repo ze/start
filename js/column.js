@@ -21,11 +21,11 @@ class Column {
     }
 
     set header(text) {
-        this._header.innerHTML = text;
+        this.header.innerHTML = text;
     }
 
     get header() {
-        return this._header;
+        return Column.icons ? this._header.firstChild : this._header;
     }
 
     static set icons(icons) {
@@ -42,24 +42,24 @@ class Column {
             head.setAttribute("colspan", "2");
             head.innerHTML = this._header.innerHTML;
 
-            this.header = "";
-            this.header.appendChild(head);
+            this._header.innerHTML = "";
+            this._header.appendChild(head);
         }
 
         if (!this._content.childNodes[1]) {
             this._content.createTBody();
         }
 
-        for (let i = 0; i < section.length; i++) {
+        for (const s of section) {
             const row = this._content.insertRow(-1);
-            row.onclick = () => window.open(section[i].url, "_self");
+            row.onclick = () => window.open(s.url, "_self");
 
             const linkCell = row.insertCell(-1);
-            linkCell.innerHTML = section[i].name;
+            linkCell.innerHTML = s.name;
 
             if (Column.icons) {
                 const icon = document.createElement("img");
-                icon.src = section[i].url + "/favicon.ico";
+                icon.src = s.url + "/favicon.ico";
 
                 const iconCell = row.insertCell(0);
                 iconCell.setAttribute("class", "icon");
