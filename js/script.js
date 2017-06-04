@@ -155,7 +155,7 @@ function newColumn() {
 }
 
 function changeColumn(col) {
-    name.value = "";
+    name.value = col.header.innerText;
 
     protocol.style.display = "none";
     url.style.display = "none";
@@ -235,10 +235,16 @@ function changeItem(col, row) {
     url.style.display = "initial";
     document.querySelector("#delete").style.display = "initial";
 
-    name.value = "";
-
     const rowIndex = Array.prototype.indexOf.call(row.parentNode.children, row);
     const header = col.header.innerHTML;
+
+    name.value = row.innerText;
+
+    let redir = config.config[header][rowIndex].url;
+    let secure = redir.indexOf("https") != -1;
+
+    protocol.value = secure ? "https://" : "http://";
+    url.value = redir.slice(secure ? 8 : 7);
 
     document.querySelector("form").onsubmit = function (e) {
         e.preventDefault();
