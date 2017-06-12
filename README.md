@@ -13,8 +13,8 @@
 
 * Set the page to open on browser open to `ze.github.io/start`.
 * To add a new item or column, press the new item button on the lower right and:
-  * Left Click on the page to add a new column with a maximum of four columns.
-  * Left Click on column body to add a new named url with a maximum of 10 items per column.
+  * Left click on the page to add a new column with a maximum of four columns.
+  * Left click on column body to add a new named url with a maximum of 10 items per column.
 * To change column information:
   * Right click column header to change name or delete column.
   * Right click row to change protocol/url/name or delete entry.

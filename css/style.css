@@ -12,10 +12,6 @@
     outline: none;
 }
 
-::-webkit-scrollbar {
-    display: none;
-}
-
 body {
     margin: 0;
     background-color: #1E202F;
@@ -38,7 +34,7 @@ input, select, button {
 
 ::-webkit-input-placeholder,
 -moz-placeholder,
-ms-input-placeholder, input, select, .button {
+ms-input-placeholder, input, select {
     color: #9138B4;
 }
 
@@ -68,7 +64,7 @@ table {
 }
 
 thead {
-    background: rgb(175,37,241);
+    background: rgb(175, 37, 241);
     color: #D8D7F0;
 
     font-size: 2.5vh;
@@ -79,10 +75,6 @@ thead {
     pointer-events: initial;
 }
 
-th {
-    font-weight: normal;
-}
-
 tr {
     font-size: 1.5vw;
     line-height: 1.8em;
@@ -90,14 +82,6 @@ tr {
 
 tr:hover {
     background-color: rgba(0, 0, 0, 0.1);
-}
-
-img {
-    width: 2em;
-    height: 2em;
-    margin-left: 1vw;
-
-    image-rendering: pixelated;
 }
 
 @media (max-width: 900px) {
@@ -259,10 +243,6 @@ img {
     pointer-events: none;
 }
 
-.icon {
-    width: 6vw;
-}
-
 #add-new {
     position: fixed;
     bottom: 4vh;
@@ -311,10 +291,6 @@ img {
     background-color: rgb(39, 40, 61);
 }
 
-.new-column {
-    width: 30vw !important;
-}
-
 .customize {
     padding: 0.5vw 0;
 }
@@ -334,6 +310,8 @@ img {
 .button {
     width: 10vw;
     height: 2.4vw;
+
+    color: #5D2971;
 
     font-size: 0.9vw;
     line-height: 1.2vw;
@@ -357,63 +335,10 @@ img {
     vertical-align: text-bottom;
 }
 
-.switchable {
-    position: relative;
-
-    width: 2.5vw;
+#upload {
+    margin-right: 2vw;
 }
 
-.switch-checkbox {
-    display: none;
-}
-
-.switch-label {
-    display: block;
-
-    height: 2vh;
-
-    border: 0px solid #FFFFFF;
-    border-radius: 3vw;
-    background-color: #6F6F6F;
-
-    line-height: 20vh;
-}
-
-.switch-label:before {
-    display: block;
-
-    position: absolute;
-    top: 0;
-    bottom: 0;
-    right: 1.75vw;
-
-    width: 1.5vw;
-    margin: -0.5vh;
-
-    background: #D178F4;
-    border-radius: 50%;
-
-    content: "";
-}
-
-.switch-label:before {
-    transition: 400ms all ease-in-out;
-}
-
-.switch-checkbox:checked + .switch-label {
-    background-color: #D178F4;
-}
-
-.switch-checkbox:checked + .switch-label, .switch-checkbox:checked + .switch-label:before {
-   border-color: #D178F4;
-}
-
-.switch-checkbox:checked + .switch-label {
-    margin-left: 0;
-}
-
-.switch-checkbox:checked + .switch-label:before {
-    right: 0;
-
-    background-color: #9138B4;
+#download {
+    padding: 0 1vw;
 }

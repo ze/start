@@ -25,27 +25,10 @@ class Column {
     }
 
     get header() {
-        return Column.icons ? this._header.firstChild : this._header;
-    }
-
-    static set icons(icons) {
-        this._icons = icons;
-    }
-
-    static get icons() {
-        return this._icons;
+        return this._header;
     }
 
     set content(section) {
-        if (Column.icons) {
-            const head = document.createElement("th");
-            head.setAttribute("colspan", "2");
-            head.innerHTML = this._header.innerHTML;
-
-            this._header.innerHTML = "";
-            this._header.appendChild(head);
-        }
-
         if (!this._content.childNodes[1]) {
             this._content.createTBody();
         }
@@ -56,22 +39,7 @@ class Column {
 
             const linkCell = row.insertCell(-1);
             linkCell.innerHTML = s.name;
-
-            if (Column.icons) {
-                const icon = document.createElement("img");
-                icon.src = s.url + "/favicon.ico";
-
-                const iconCell = row.insertCell(0);
-                iconCell.setAttribute("class", "icon");
-                iconCell.appendChild(icon);
-
-                icon.onerror = function () {
-                    this.style.visibility = "hidden";
-                };
-
-            } else {
-                linkCell.style.textAlign = "center";
-            }
+            linkCell.style.textAlign = "center";
         }
     }
 

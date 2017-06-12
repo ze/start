@@ -12,13 +12,13 @@ const item = document.querySelector("#new-item"),
     settings = document.querySelector("#config"),
     protocol = document.querySelector("select"),
     url = document.querySelector("#url"),
-    name = document.querySelector("#name");
+    name = document.querySelector("#name"),
+    del = document.querySelector("#delete");
 
 const COL_MAX = 4,
-    ITEM_MAX = 10,
-    CHAR_MAX = [18, 25];
+    ITEM_MAX = 10;
 
-name.maxLength = CHAR_MAX[1];
+name.maxLength = 25;
 
 button.onclick = function (e) {
     settings.style.display = "none";
@@ -57,7 +57,7 @@ search.onkeypress = e => {
 };
 
 function columnClick(e, col, cols, callback, row) {
-    name.maxLength = CHAR_MAX[0];
+    name.maxLength = 18;
 
     let selectedColumn = null;
     for (let i = 0; i < cols.length; i++) {
@@ -81,15 +81,13 @@ function columnClick(e, col, cols, callback, row) {
 
 function clear() {
     Array.from(document.querySelectorAll(".menu")).map(menu => menu.style.display = "none");
-    document.querySelector("#delete").style.display = "none";
+    del.style.display = "none";
 
     protocol.selectedIndex = 0;
     url.value = name.value = "";
-
     url.required = true;
 
-    name.maxLength = Column.icons ? CHAR_MAX[0] : CHAR_MAX[1];
-
+    name.maxLength = 25;
     button.disabled = false;
 }
 
@@ -120,7 +118,6 @@ function newColumn() {
     url.required = false;
 
     item.style.display = "flex";
-
     document.querySelector("form").onsubmit = function (e) {
         e.preventDefault();
 
@@ -140,7 +137,7 @@ function newColumn() {
             e.stopPropagation();
 
             if (window.getComputedStyle(settings, null).getPropertyValue("display") != "none") return;
-            columnClick(e, col, getCols(), changeColumn);
+            changeColumn(col);
         };
 
         col.column.classList.add("editable");
@@ -159,12 +156,11 @@ function changeColumn(col) {
 
     protocol.style.display = "none";
     url.style.display = "none";
+    del.style.display = "initial";
 
     url.required = false;
 
     item.style.display = "flex";
-    document.querySelector("#delete").style.display = "initial";
-
     document.querySelector("form").onsubmit = function (e) {
         e.preventDefault();
 
@@ -185,7 +181,7 @@ function changeColumn(col) {
         col.header = trimmed;
     };
 
-    document.querySelector("#delete").onclick = function (e) {
+    del.onclick = function (e) {
         for (let i = 0; i < config.columns.length; i++) {
             if (config.columns[i].header.innerText == col.header.innerText) {
                 config.columns.splice(i, 1);
@@ -206,12 +202,11 @@ function changeColumn(col) {
 
 function newItem(col) {
     document.removeEventListener("click", newColumn);
-    item.classList.remove("new-column");
 
-    item.style.display = "flex";
     protocol.style.display = "initial";
     url.style.display = "initial";
 
+    item.style.display = "flex";
     document.querySelector("form").onsubmit = function (e) {
         e.preventDefault();
 
@@ -230,10 +225,9 @@ function newItem(col) {
 }
 
 function changeItem(col, row) {
-    item.style.display = "flex";
     protocol.style.display = "initial";
     url.style.display = "initial";
-    document.querySelector("#delete").style.display = "initial";
+    del.style.display = "initial";
 
     const rowIndex = Array.prototype.indexOf.call(row.parentNode.children, row);
     const header = col.header.innerHTML;
@@ -246,6 +240,7 @@ function changeItem(col, row) {
     protocol.value = secure ? "https://" : "http://";
     url.value = redir.slice(secure ? 8 : 7);
 
+    item.style.display = "flex";
     document.querySelector("form").onsubmit = function (e) {
         e.preventDefault();
 
@@ -253,13 +248,13 @@ function changeItem(col, row) {
         const trimmedUrl = protocol.value + trimVal(url);
 
         config.change(header, rowIndex, trimmedUrl, trimVal(name));
-        row.childNodes[Column.icons ? 1 : 0].innerHTML = trimVal(name);
+        row.childNodes[0].innerHTML = trimVal(name);
         row.onclick = () => window.open(trimmedUrl, "_self");
 
         config.localize();
     };
 
-    document.querySelector("#delete").onclick = function (e) {
+    del.onclick = function (e) {
         col.config.splice(rowIndex, 1);
 
         col.reload();
@@ -269,18 +264,6 @@ function changeItem(col, row) {
     }
 
     clearColumnClick();
-}
-
-function switchIcons() {
-    const iconSetter = document.querySelector("#switch");
-    iconSetter.onclick = e => {
-        Column.icons = iconSetter.checked;
-        localStorage.setItem("icons", Column.icons);
-
-        config.clearContainer();
-        config.generate();
-        setupColumns();
-    };
 }
 
 function setupColumns() {
@@ -306,16 +289,12 @@ function setupColumns() {
     }
 }
 
-config.load(JSON.parse(localStorage.getItem("icons")) || false, function () {
-    document.querySelector("#switch").checked = Column.icons;
-
+config.load(function () {
     document.oncontextmenu = e => {
         e.preventDefault();
 
         if (window.getComputedStyle(item, null).getPropertyValue("display") != "none") return;
-        document.querySelector("#config").style.display = "flex";
-
-        switchIcons();
+        settings.style.display = "flex";
 
         clearColumnClick();
     };

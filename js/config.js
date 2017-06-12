@@ -38,9 +38,7 @@ class Config {
         }
     }
 
-    load(icons, callback) {
-        Column.icons = icons;
-
+    load(callback) {
         if (localStorage.getItem("config")) {
             this._config = JSON.parse(localStorage.getItem("config"));
             this.generate();
