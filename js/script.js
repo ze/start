@@ -289,6 +289,36 @@ function setupColumns() {
     }
 }
 
+document.querySelector("#download").onclick = function () {
+    const downloader = document.querySelector("#down_json");
+
+    const data = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(config.config, null, 4));
+    downloader.href = data;
+    downloader.download = "config.json";
+};
+
+document.querySelector("#upload").onclick = function () {
+    let inFile = document.querySelector("#up_file");
+    inFile.onchange = function (e) {
+        let file = e.target.files[0];
+        if (!file || !file.type.match("json")) return;
+
+        let reader = new FileReader();
+        reader.readAsBinaryString(file);
+
+        reader.onload = () => {
+            let conf = JSON.parse(reader.result);
+            config.config = conf;
+
+            config.clearContainer();
+            config.generate();
+            config.localize();
+        };
+    };
+
+    inFile.click();
+};
+
 config.load(function () {
     document.oncontextmenu = e => {
         e.preventDefault();

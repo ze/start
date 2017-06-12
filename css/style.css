@@ -339,6 +339,10 @@ tr:hover {
     margin-right: 2vw;
 }
 
+#up_file {
+    display: none;
+}
+
 #download {
     padding: 0 1vw;
 }
