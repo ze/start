@@ -15,10 +15,50 @@ const item = document.querySelector("#new-item"),
     name = document.querySelector("#name"),
     del = document.querySelector("#delete");
 
-const COL_MAX = 4,
-    ITEM_MAX = 10;
+const colMax = 4,
+    itemMax = 10;
 
 name.maxLength = 25;
+
+if(!localStorage.getItem("firstTime")) {
+    const tut = document.createElement("div");
+    tut.setAttribute("id", "tutorial");
+    tut.classList.add("hoverable");
+
+    const head = document.createElement("p");
+    head.innerText = "How to use";
+    tut.appendChild(head);
+
+    const desc = [
+        "The search bar functions as a google search, or as a page opener.",
+        "To add items or columns, click on the +.",
+        "Left click on the page to add a new column with a maximum of four columns.",
+        "Left click on column body to add a new named url with a maximum of 10 items per column.",
+        "Right click a column header to change its name or delete it.",
+        "Right click a row to change its protocol/url/name or remove the entry.",
+        "Right click the page to export or import a config.",
+        "To exit, click anywhere."
+    ];
+
+    const list = document.createElement("ul");
+    for (let d of desc) {
+        const li = document.createElement("li");
+        li.innerText = d;
+        list.appendChild(li);
+    }
+
+    tut.appendChild(list);
+    document.body.appendChild(tut);
+
+    let once = function (e) {
+        localStorage.setItem("firstTime", true);
+
+        document.removeEventListener(e.type, once);
+        document.body.removeChild(tut);
+    };
+    document.addEventListener("click", once);
+    tut.oncontextmenu = e => e.stopPropagation();
+}
 
 button.onclick = function (e) {
     settings.style.display = "none";
@@ -28,7 +68,7 @@ button.onclick = function (e) {
     cols.map(function (col) {
         col.classList.add("editable");
 
-        if (columnChildren(col).length < ITEM_MAX) {
+        if (columnChildren(col).length < itemMax) {
             col.onclick = function (e) {
                 e.stopPropagation();
                 columnClick(e, col, cols, newItem);
@@ -36,7 +76,7 @@ button.onclick = function (e) {
         }
     });
 
-    if (cols.length < COL_MAX) {
+    if (cols.length < colMax) {
         e.stopPropagation();
         document.addEventListener("click", newColumn);
     }
@@ -143,7 +183,7 @@ function newColumn() {
         col.column.classList.add("editable");
         config.localize();
 
-        if (getCols().length == COL_MAX) {
+        if (getCols().length == colMax) {
             clear();
         }
     };
@@ -216,7 +256,7 @@ function newItem(col) {
         col.reload();
         config.localize();
 
-        if (columnChildren(col.column).length == ITEM_MAX) {
+        if (columnChildren(col.column).length == itemMax) {
             clear();
         }
     };

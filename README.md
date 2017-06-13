@@ -7,6 +7,7 @@
 * A search bar to either load websites or submit a query to Google.
 * Column manipulation for modifiability.
 * Local caching of the configuration.
+* Importing and exporting of configs.
 * No installation necessary.
 
 ## Usage
@@ -18,3 +19,4 @@
 * To change column information:
   * Right click column header to change name or delete column.
   * Right click row to change protocol/url/name or delete entry.
+* Right click the page to import or export a config.

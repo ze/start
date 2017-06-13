@@ -48,7 +48,7 @@ button, select {
 }
 
 button {
-    background: rgb(209, 120, 244);
+    background-color: rgb(209, 120, 244);
     color: #1E202F;
 
     vertical-align: middle;
@@ -64,7 +64,7 @@ table {
 }
 
 thead {
-    background: rgb(175, 37, 241);
+    background-color: rgb(175, 37, 241);
     color: #D8D7F0;
 
     font-size: 2.5vh;
@@ -222,7 +222,7 @@ tr:hover {
     min-height: 9vh;
     margin: 0 0.5vw;
 
-    background: rgb(39, 40, 61);
+    background-color: rgb(39, 40, 61);
     color: rgb(209, 120, 244);
 }
 
@@ -345,4 +345,45 @@ tr:hover {
 
 #download {
     padding: 0 1vw;
+}
+
+#tutorial {
+    position: fixed;
+    top: calc(50% - 25vw);
+    left: calc(50% - 25vw);
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+
+    width: 50vw;
+    height: 50vw;
+
+    border-radius: 0.5vw;
+    background-color: rgb(84, 87, 109);
+    color: #ECECEC;
+
+    opacity: 0.95;
+}
+
+ul {
+    padding: 0 2.5vw;
+
+    font-size: 2vw;
+
+    list-style-type: none;
+}
+
+li {
+    margin-bottom: 1vw;
+}
+
+p {
+    padding: 0 0.5vw;
+    margin: 0;
+
+    font-size: 3vw;
+
+    border-bottom: 0.1vw solid #9596A4;
 }
